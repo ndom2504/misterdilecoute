@@ -26,7 +26,7 @@ function setCors(req, res) {
     // Origin non autorisée: on ne renvoie pas d'entête permissive.
   }
 
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Max-Age", "86400");
 }
@@ -60,8 +60,28 @@ module.exports = async (req, res) => {
     return;
   }
 
+  if (req.method === "GET") {
+    res.status(200).json({
+      ok: true,
+      endpoint: "/api/ai-generate",
+      usage: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: {
+          prompt: "string (required)",
+          type: "audio|ecrit|video (optional)",
+          category: "string (optional)",
+          sujet: "string (optional)",
+        },
+      },
+      note:
+        "Ouvrir cette URL dans un navigateur fait un GET. Pour générer, envoyez un POST JSON (c'est ce que fait l'admin).",
+    });
+    return;
+  }
+
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Method Not Allowed" });
+    res.status(405).json({ error: "Method Not Allowed", allowed: ["GET", "POST", "OPTIONS"] });
     return;
   }
 
